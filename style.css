@@ -1,0 +1,135 @@
+/* General Styling */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #121212; /* Dark background */
+    color: #e0e0e0; /* Light text */
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    background-color: #1f1f1f;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 3px solid #00c853; /* Green accent */
+}
+
+/* Dashboard Layout */
+.dashboard-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    padding: 20px;
+    gap: 20px;
+}
+
+/* Card Styling */
+.metric-card, .news-feed-card {
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    min-width: 250px;
+    flex: 1; /* Allow cards to grow */
+}
+
+/* Specific Card Styles */
+.score-card { flex-basis: 25%; }
+.signal-card { flex-basis: 25%; }
+.ticker-info-card { flex-basis: 15%; }
+.news-feed-card { flex-basis: 25%; }
+
+/* Score and Signal Values */
+.score-value {
+    font-size: 3em;
+    font-weight: 700;
+    margin: 10px 0;
+    transition: color 0.5s;
+}
+
+.signal-value {
+    font-size: 2em;
+    font-weight: 700;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    transition: background-color 0.5s;
+}
+
+/* Color Coding for Sentiment */
+.positive { color: #00c853; } /* Green */
+.negative { color: #ff1744; } /* Red */
+.neutral, .hold { color: #ffeb3b; } /* Yellow */
+
+.signal-value.hold { background-color: #4a4a4a; }
+.signal-value.buy { background-color: #00c853; color: #121212; }
+.signal-value.sell { background-color: #ff1744; color: #121212; }
+
+
+/* Ticker Selector */
+#stock-ticker {
+    padding: 8px;
+    font-size: 1.1em;
+    border-radius: 5px;
+    border: 1px solid #333;
+    background-color: #333;
+    color: #e0e0e0;
+    width: 100%;
+}
+
+.last-price, .last-update {
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+/* Sentiment Distribution Chart */
+.sentiment-chart-placeholder {
+    display: flex;
+    height: 30px;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 15px 0;
+}
+
+.chart-bar {
+    text-align: center;
+    color: #121212;
+    font-weight: bold;
+    line-height: 30px;
+}
+.chart-bar.negative { background-color: #ff1744; }
+.chart-bar.neutral { background-color: #ffeb3b; }
+.chart-bar.positive { background-color: #00c853; }
+
+/* News Feed */
+.news-feed-container {
+    padding: 20px 40px;
+}
+
+#newsFeed {
+    list-style: none;
+    padding: 0;
+}
+
+#newsFeed li {
+    background-color: #1e1e1e;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    border-left: 5px solid transparent;
+}
+
+.sentiment-tag {
+    padding: 5px 10px;
+    margin-right: 15px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.sentiment-tag.pos { background-color: #00c853; color: #121212; }
+.sentiment-tag.neg { background-color: #ff1744; color: #121212; }
+.sentiment-tag.neut { background-color: #ffeb3b; color: #121212; }
