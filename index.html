@@ -271,7 +271,6 @@
                 </div>
             </div>
 
-
             <div id="portfolioHoldings" class="grid grid-cols-1 lg:grid-cols-2 gap-6 custom-scroll max-h-[60vh] overflow-y-auto">
                 <p class="text-slate-400 col-span-full" id="emptyPortfolio">You have no holdings. Buy stocks from the Market Data tab.</p>
             </div>
@@ -679,9 +678,15 @@
                 renderStockList(document.getElementById('searchInput').value); // Rerender main list to update watchlist buttons
             }, (error) => console.error("Watchlist Listener Error:", error));
 
-            // 2. Portfolio Listener
+            // 2. Portfolio Listener - FIXED: Properly handle portfolio data
             portfolioUnsubscribe = onSnapshot(getPrivateCollectionRef('portfolio'), (snapshot) => {
-                portfolioHoldingsCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(h => h.shares > 0);
+                portfolioHoldingsCache = snapshot.docs.map(d => ({ 
+                    id: d.id, 
+                    ticker: d.id, // Use document ID as ticker
+                    shares: d.data().shares || 0,
+                    totalCost: d.data().totalCost || 0
+                })).filter(h => h.shares > 0);
+                console.log("Portfolio updated:", portfolioHoldingsCache);
                 renderPortfolio(portfolioHoldingsCache);
             }, (error) => console.error("Portfolio Listener Error:", error));
 
@@ -827,7 +832,6 @@
                 updateNiftyChart(niftyPriceHistory, niftyIndex);
                 updateNiftyIndexDisplay(newNiftyPrice, niftyLastPrice);
 
-
                 // 2. Update Stocks and Rerender
                 let hasRerendered = false;
                 COMPANIES.forEach(stock => {
@@ -858,11 +862,14 @@
                         hasRerendered = true;
                     }
                     
-                    // Update portfolio
-                    const holdingCard = document.getElementById(`holding-${stock.ticker}`);
-                    if (holdingCard) {
-                        updateHoldingCard(stock);
-                        hasRerendered = true;
+                    // Update portfolio - FIXED: Only update if holding exists
+                    const holding = portfolioHoldingsCache.find(h => h.ticker === stock.ticker);
+                    if (holding) {
+                        const holdingCard = document.getElementById(`holding-${stock.ticker}`);
+                        if (holdingCard) {
+                            updateHoldingCard(stock, holding);
+                            hasRerendered = true;
+                        }
                     }
 
                     // Check for Price Target Hit
@@ -1122,7 +1129,6 @@
             `;
         }
 
-
         function renderStockCard(stock, prefix = 'stock-') {
             const isWatchlist = stockData.watchlist.includes(stock.ticker);
             const isHolding = portfolioHoldingsCache.some(h => h.ticker === stock.ticker);
@@ -1215,10 +1221,8 @@
             }
         }
 
-        function updateHoldingCard(stock) {
-            const holding = portfolioHoldingsCache.find(h => h.ticker === stock.ticker);
-            if (!holding) return; // Holding might have been sold down to 0
-
+        // FIXED: Update holding card with proper parameters
+        function updateHoldingCard(stock, holding) {
             const card = document.getElementById(`holding-${stock.ticker}`);
             if (!card) return;
 
@@ -1245,7 +1249,7 @@
             card.querySelector('.holding-value').textContent = formatCurrency(currentValue);
         }
 
-
+        // FIXED: Portfolio rendering with proper calculations
         function renderPortfolio(holdings) {
             const container = document.getElementById('portfolioHoldings');
             const emptyMessage = document.getElementById('emptyPortfolio');
@@ -1441,6 +1445,7 @@
             document.getElementById('tradeModalTotal').textContent = formatCurrency(total);
         }
 
+        // FIXED: Trade handling with proper portfolio updates
         window.handleTrade = async function(type) {
             const tickerMatch = document.getElementById('tradeModalTicker').textContent.match(/\((.*?)\)/);
             if (!tickerMatch) return showTradeError("Invalid stock ticker.");
@@ -1546,6 +1551,13 @@
 
                 document.getElementById('tradeModal').classList.add('hidden');
                 document.getElementById('tradeShares').value = 1;
+                
+                // Force refresh portfolio data
+                if (!db) {
+                    portfolioHoldingsCache = JSON.parse(localStorage.getItem(`${userId}_portfolio`) || '[]');
+                    renderPortfolio(portfolioHoldingsCache);
+                }
+                
                 document.querySelector('.tab-button[data-tab="portfolio"]').click();
 
             } catch (e) {
@@ -1576,7 +1588,6 @@
                 console.error("Error setting portfolio goal:", e);
             }
         }
-
 
         // --- CHART MODAL LOGIC ---
 
